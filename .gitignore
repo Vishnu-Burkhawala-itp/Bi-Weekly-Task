@@ -1,0 +1,34 @@
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Logs
+*.log
+logs/
+
+# App-Specific / Data (Do not commit vector DBs or raw documents)
+chroma_db/
+faiss_index/
+vector_store/
+data/
+uploads/
+*.pdf
+*.docx
+*.txt
