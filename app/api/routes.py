@@ -1,8 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.models.schemas import QueryRequest, QueryResponse, IngestionResponse
+from app.models.schemas import (
+    QueryRequest,
+    QueryResponse,
+    IngestionResponse,
+    UrlIngestionRequest,
+    UrlIngestionResponse,
+)
 from app.services.rag_interface import RAGServiceInterface
 from app.services.ingestion_service import IngestionService
-from app.api.dependencies import get_rag_service, get_ingestion_service
+from app.services.url_ingestion_service import UrlIngestionService
+from app.api.dependencies import (
+    get_rag_service,
+    get_ingestion_service,
+    get_url_ingestion_service,
+)
 
 router = APIRouter()
 
@@ -28,3 +39,20 @@ def ingest_documents(
     except Exception as e:
         # If the API key is missing or the data folder is empty, gracefully fail.
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/ingest/urls", response_model=UrlIngestionResponse)
+def ingest_urls(
+    request: UrlIngestionRequest,
+    service: UrlIngestionService = Depends(get_url_ingestion_service),
+):
+    try:
+        result = service.run_from_urls(request.urls)
+        return UrlIngestionResponse(
+            status="Success! URLs were fetched and indexed.",
+            nodes_processed=result.nodes_processed,
+            urls_processed=result.processed_urls,
+            errors=result.errors,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

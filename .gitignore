@@ -25,10 +25,10 @@ logs/
 
 # App-Specific / Data (Do not commit vector DBs or raw documents)
 chroma_db/
+hf_cache
 faiss_index/
 vector_store/
 data/
 uploads/
 *.pdf
 *.docx
-*.txt

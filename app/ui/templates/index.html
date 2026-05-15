@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tech Docs RAG Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #1f2a33;
+        --muted: #5c6a73;
+        --accent: #2f7f6f;
+        --accent-2: #e46c4e;
+        --paper: #fff9f2;
+        --panel: #ffffff;
+        --shadow: rgba(15, 23, 42, 0.08);
+        --line: rgba(31, 42, 51, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Segoe UI", Tahoma, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 12%, #fff1d6 0%, transparent 48%),
+          radial-gradient(circle at 88% 18%, #d9f2e7 0%, transparent 46%),
+          linear-gradient(180deg, #fff9f2 0%, #f7ebe1 100%);
+        min-height: 100vh;
+      }
+
+      header {
+        padding: 48px 24px 24px;
+      }
+
+      .title {
+        font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+        font-size: clamp(28px, 3.6vw, 44px);
+        letter-spacing: -0.02em;
+        margin: 0 0 12px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: clamp(16px, 2vw, 20px);
+        max-width: 720px;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px 64px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 18px 40px var(--shadow);
+      }
+
+      .card h2 {
+        margin-top: 0;
+        font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+        font-size: 20px;
+      }
+
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      label {
+        font-weight: 600;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(31, 42, 51, 0.16);
+        font-size: 15px;
+        font-family: inherit;
+      }
+
+      input[type="file"] {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px dashed rgba(31, 42, 51, 0.24);
+        background: #ffffff;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      button {
+        border: none;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+        letter-spacing: 0.01em;
+      }
+
+      .primary {
+        background: var(--accent);
+        color: #ffffff;
+      }
+
+      .secondary {
+        background: #ffe7dc;
+        color: #7f2f1d;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(47, 127, 111, 0.12);
+        color: #1a5147;
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      .result {
+        background: #f8f4ef;
+        border-radius: 14px;
+        padding: 16px;
+        border: 1px dashed rgba(31, 42, 51, 0.12);
+      }
+
+      .citations {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .error {
+        background: rgba(228, 108, 78, 0.1);
+        border: 1px solid rgba(228, 108, 78, 0.4);
+        color: #7f2f1d;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+      }
+
+      .helper {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 24px;
+        color: var(--muted);
+        font-size: 14px;
+        flex-wrap: wrap;
+      }
+
+      .link {
+        color: var(--accent-2);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      @media (max-width: 700px) {
+        header {
+          padding-top: 32px;
+        }
+
+        .footer {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <h1 class="title">Tech Docs RAG Console</h1>
+      <p class="subtitle">
+        Ingest PDF manuals, then ask precise questions and get answers with citations.
+      </p>
+    </header>
+
+    <main class="container">
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <div class="grid" style="margin-top: 24px;">
+        <section class="card">
+          <h2>Ingestion</h2>
+          <p>Load PDFs from <strong>{{ data_dir }}</strong> into the vector database.</p>
+          <form method="post" action="/ui/ingest" class="stack" enctype="multipart/form-data">
+            <label for="pdfs">Upload PDFs (optional)</label>
+            <input id="pdfs" name="files" type="file" accept=".pdf" multiple>
+            <span class="helper">Leave empty to ingest existing files in {{ data_dir }}.</span>
+            <button class="primary" type="submit">Run ingestion</button>
+          </form>
+
+          {% if ingest_status %}
+            <div class="result" style="margin-top: 16px;">
+              <div class="pill">{{ ingest_status }}</div>
+              {% if ingest_nodes is not none %}
+                <p style="margin: 12px 0 0;">Nodes processed: {{ ingest_nodes }}</p>
+              {% endif %}
+              {% if uploaded_files %}
+                <strong>Uploaded files</strong>
+                <ul class="citations">
+                  {% for file_name in uploaded_files %}
+                    <li>{{ file_name }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endif %}
+        </section>
+
+        <section class="card">
+          <h2>Ingest from URLs</h2>
+          <p>Paste one web page URL per line to index web content.</p>
+          <form method="post" action="/ui/ingest/urls" class="stack">
+            <label for="urls">URLs</label>
+            <textarea id="urls" name="urls" placeholder="https://example.com/docs">{{ url_input }}</textarea>
+            <button class="primary" type="submit">Ingest URLs</button>
+          </form>
+
+          {% if url_status %}
+            <div class="result" style="margin-top: 16px;">
+              <div class="pill">{{ url_status }}</div>
+              {% if url_nodes is not none %}
+                <p style="margin: 12px 0 0;">Nodes processed: {{ url_nodes }}</p>
+              {% endif %}
+              {% if url_processed %}
+                <strong>Processed URLs</strong>
+                <ul class="citations">
+                  {% for url in url_processed %}
+                    <li>{{ url }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              {% if url_errors %}
+                <strong>Errors</strong>
+                <ul class="citations">
+                  {% for item in url_errors %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endif %}
+        </section>
+
+        <section class="card">
+          <h2>Ask a question</h2>
+          <form method="post" action="/ui/ask" class="stack">
+            <label for="query">Your question</label>
+            <textarea id="query" name="query" placeholder="Ask about a tech doc...">{{ query }}</textarea>
+            <button class="secondary" type="submit">Ask the RAG</button>
+          </form>
+
+          {% if answer %}
+            <div class="result" style="margin-top: 16px;">
+              <strong>Answer</strong>
+              <p style="margin-top: 8px;">{{ answer }}</p>
+              {% if citations %}
+                <strong>Citations</strong>
+                <ul class="citations">
+                  {% for cite in citations %}
+                    <li>{{ cite }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endif %}
+        </section>
+      </div>
+
+      <div class="footer">
+        <span>API base: /api/v1</span>
+        <a class="link" href="/docs">Open API docs</a>
+      </div>
+    </main>
+  </body>
+</html>

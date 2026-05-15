@@ -2,13 +2,13 @@ import os
 import chromadb
 from llama_index.core import VectorStoreIndex, Settings 
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.openai import OpenAI # We still use the OpenAI class!
 from llama_index.postprocessor.cohere_rerank import CohereRerank
 from llama_index.core.postprocessor import MetadataReplacementPostProcessor
 from app.services.rag_interface import RAGServiceInterface
 from app.models.schemas import QueryResponse
 from app.core.config import settings
+from app.services.embedding_provider import get_embedding_model
 
 class AdvancedRAGService(RAGServiceInterface):
     def __init__(self):
@@ -16,7 +16,7 @@ class AdvancedRAGService(RAGServiceInterface):
         os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY
         
         # --- 1. The Translator ---
-        Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+        Settings.embed_model = get_embedding_model()
         
         # --- 2. The Writer (Updated for GitHub Models) ---
         # We explicitly tell LlamaIndex to send the request to Azure/GitHub 
