@@ -1,12 +1,15 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tech Docs RAG Console</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --ink: #1f2a33;
@@ -206,41 +209,51 @@
     <header class="container">
       <h1 class="title">Tech Docs RAG Console</h1>
       <p class="subtitle">
-        Ingest PDF manuals, then ask precise questions and get answers with citations.
+        Ingest PDF manuals, then ask precise questions and get answers with
+        citations.
       </p>
     </header>
 
     <main class="container">
       {% if error %}
-        <div class="error">{{ error }}</div>
+      <div class="error">{{ error }}</div>
       {% endif %}
 
-      <div class="grid" style="margin-top: 24px;">
+      <div class="grid" style="margin-top: 24px">
         <section class="card">
           <h2>Ingestion</h2>
-          <p>Load PDFs from <strong>{{ data_dir }}</strong> into the vector database.</p>
-          <form method="post" action="/ui/ingest" class="stack" enctype="multipart/form-data">
+          <p>
+            Load PDFs from <strong>{{ data_dir }}</strong> into the vector
+            database.
+          </p>
+          <form
+            method="post"
+            action="/ui/ingest"
+            class="stack"
+            enctype="multipart/form-data"
+          >
             <label for="pdfs">Upload PDFs (optional)</label>
-            <input id="pdfs" name="files" type="file" accept=".pdf" multiple>
-            <span class="helper">Leave empty to ingest existing files in {{ data_dir }}.</span>
+            <input id="pdfs" name="files" type="file" accept=".pdf" multiple />
+            <span class="helper"
+              >Leave empty to ingest existing files in {{ data_dir }}.</span
+            >
             <button class="primary" type="submit">Run ingestion</button>
           </form>
 
           {% if ingest_status %}
-            <div class="result" style="margin-top: 16px;">
-              <div class="pill">{{ ingest_status }}</div>
-              {% if ingest_nodes is not none %}
-                <p style="margin: 12px 0 0;">Nodes processed: {{ ingest_nodes }}</p>
-              {% endif %}
-              {% if uploaded_files %}
-                <strong>Uploaded files</strong>
-                <ul class="citations">
-                  {% for file_name in uploaded_files %}
-                    <li>{{ file_name }}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            </div>
+          <div class="result" style="margin-top: 16px">
+            <div class="pill">{{ ingest_status }}</div>
+            {% if ingest_nodes is not none %}
+            <p style="margin: 12px 0 0">Nodes processed: {{ ingest_nodes }}</p>
+            {% endif %} {% if uploaded_files %}
+            <strong>Uploaded files</strong>
+            <ul class="citations">
+              {% for file_name in uploaded_files %}
+              <li>{{ file_name }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
           {% endif %}
         </section>
 
@@ -249,33 +262,86 @@
           <p>Paste one web page URL per line to index web content.</p>
           <form method="post" action="/ui/ingest/urls" class="stack">
             <label for="urls">URLs</label>
-            <textarea id="urls" name="urls" placeholder="https://example.com/docs">{{ url_input }}</textarea>
+            <textarea
+              id="urls"
+              name="urls"
+              placeholder="https://example.com/docs"
+            >
+{{ url_input }}</textarea
+            >
             <button class="primary" type="submit">Ingest URLs</button>
           </form>
 
           {% if url_status %}
-            <div class="result" style="margin-top: 16px;">
-              <div class="pill">{{ url_status }}</div>
-              {% if url_nodes is not none %}
-                <p style="margin: 12px 0 0;">Nodes processed: {{ url_nodes }}</p>
-              {% endif %}
-              {% if url_processed %}
-                <strong>Processed URLs</strong>
-                <ul class="citations">
-                  {% for url in url_processed %}
-                    <li>{{ url }}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-              {% if url_errors %}
-                <strong>Errors</strong>
-                <ul class="citations">
-                  {% for item in url_errors %}
-                    <li>{{ item }}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            </div>
+          <div class="result" style="margin-top: 16px">
+            <div class="pill">{{ url_status }}</div>
+            {% if url_nodes is not none %}
+            <p style="margin: 12px 0 0">Nodes processed: {{ url_nodes }}</p>
+            {% endif %} {% if url_processed %}
+            <strong>Processed URLs</strong>
+            <ul class="citations">
+              {% for url in url_processed %}
+              <li>{{ url }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %} {% if url_errors %}
+            <strong>Errors</strong>
+            <ul class="citations">
+              {% for item in url_errors %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          {% endif %}
+        </section>
+
+        <section class="card">
+          <h2>Ingest GitHub Repository</h2>
+
+          <p>
+            Paste a public GitHub repository link to index source code and
+            documentation.
+          </p>
+
+          <form method="post" action="/ui/ingest/github" class="stack">
+            <label for="repo_url">GitHub Repository URL</label>
+
+            <input
+              id="repo_url"
+              name="repo_url"
+              type="text"
+              placeholder="https://github.com/langchain-ai/langchain"
+              value="{{ github_input }}"
+            />
+
+            <button class="primary" type="submit">Ingest GitHub Repo</button>
+          </form>
+
+          {% if github_status %}
+          <div class="result" style="margin-top: 16px">
+            <div class="pill">{{ github_status }}</div>
+
+            {% if github_nodes is not none %}
+            <p style="margin: 12px 0 0">Nodes processed: {{ github_nodes }}</p>
+            {% endif %} {% if github_processed %}
+            <strong>Processed Files</strong>
+
+            <ul class="citations">
+              {% for file in github_processed[:20] %}
+              <li>{{ file }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %} {% if github_errors %}
+            <strong>Errors</strong>
+
+            <ul class="citations">
+              {% for item in github_errors %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
           {% endif %}
         </section>
 
@@ -283,23 +349,29 @@
           <h2>Ask a question</h2>
           <form method="post" action="/ui/ask" class="stack">
             <label for="query">Your question</label>
-            <textarea id="query" name="query" placeholder="Ask about a tech doc...">{{ query }}</textarea>
+            <textarea
+              id="query"
+              name="query"
+              placeholder="Ask about a tech doc..."
+            >
+{{ query }}</textarea
+            >
             <button class="secondary" type="submit">Ask the RAG</button>
           </form>
 
           {% if answer %}
-            <div class="result" style="margin-top: 16px;">
-              <strong>Answer</strong>
-              <p style="margin-top: 8px;">{{ answer }}</p>
-              {% if citations %}
-                <strong>Citations</strong>
-                <ul class="citations">
-                  {% for cite in citations %}
-                    <li>{{ cite }}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            </div>
+          <div class="result" style="margin-top: 16px">
+            <strong>Answer</strong>
+            <p style="margin-top: 8px">{{ answer }}</p>
+            {% if citations %}
+            <strong>Citations</strong>
+            <ul class="citations">
+              {% for cite in citations %}
+              <li>{{ cite }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
           {% endif %}
         </section>
       </div>

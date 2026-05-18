@@ -22,3 +22,13 @@ class UrlIngestionResponse(BaseModel):
     nodes_processed: int
     urls_processed: List[str]
     errors: List[str] = Field(default_factory=list)
+
+class GithubIngestionRequest(BaseModel):
+    repo_url: str
+
+
+class GithubIngestionResponse(BaseModel):
+    status: str
+    nodes_processed: int
+    processed_files: List[str]
+    errors: List[str] = Field(default_factory=list)

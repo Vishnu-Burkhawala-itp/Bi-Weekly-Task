@@ -10,10 +10,12 @@ from app.api.dependencies import (
     get_ingestion_service,
     get_rag_service,
     get_url_ingestion_service,
+    get_github_ingestion_service
 )
 from app.services.ingestion_service import IngestionService
 from app.services.rag_interface import RAGServiceInterface
 from app.services.url_ingestion_service import UrlIngestionService
+from app.services.github_ingestion_service import GithubIngestionService
 
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -36,6 +38,11 @@ def _render_home(
     url_errors: Optional[List[str]] = None,
     data_dir: str = "",
     error: str = "",
+    github_input: str = "",
+    github_status: str = "",
+    github_nodes: Optional[int] = None,
+    github_processed: Optional[List[str]] = None,
+    github_errors: Optional[List[str]] = None,
 ) -> HTMLResponse:
     return templates.TemplateResponse(
         request,
@@ -55,6 +62,11 @@ def _render_home(
             "url_errors": url_errors or [],
             "data_dir": data_dir,
             "error": error,
+            "github_input": github_input,
+            "github_status": github_status,
+            "github_nodes": github_nodes,
+            "github_processed": github_processed or [],
+            "github_errors": github_errors or [],
         },
     )
 
@@ -153,6 +165,36 @@ def ui_ingest_urls(
         return _render_home(
             request,
             url_input=urls,
+            data_dir=ingestion_service.data_dir,
+            error=str(exc),
+        )
+
+
+@router.post("/ui/ingest/github", response_class=HTMLResponse)
+def ui_ingest_github(
+    request: Request,
+    repo_url: str = Form(...),
+    service: GithubIngestionService = Depends(get_github_ingestion_service),
+    ingestion_service: IngestionService = Depends(get_ingestion_service),
+) -> HTMLResponse:
+
+    try:
+        result = service.run_from_github_repo(repo_url)
+
+        return _render_home(
+            request,
+            github_input=repo_url,
+            github_status="GitHub repository indexed successfully.",
+            github_nodes=result.nodes_processed,
+            github_processed=result.processed_files,
+            github_errors=result.errors,
+            data_dir=ingestion_service.data_dir,
+        )
+
+    except Exception as exc:
+        return _render_home(
+            request,
+            github_input=repo_url,
             data_dir=ingestion_service.data_dir,
             error=str(exc),
         )

@@ -5,6 +5,8 @@ from app.models.schemas import (
     IngestionResponse,
     UrlIngestionRequest,
     UrlIngestionResponse,
+    GithubIngestionRequest,
+    GithubIngestionResponse,
 )
 from app.services.rag_interface import RAGServiceInterface
 from app.services.ingestion_service import IngestionService
@@ -13,7 +15,9 @@ from app.api.dependencies import (
     get_rag_service,
     get_ingestion_service,
     get_url_ingestion_service,
+    get_github_ingestion_service,
 )
+from app.services.github_ingestion_service import GithubIngestionService
 
 router = APIRouter()
 
@@ -54,5 +58,24 @@ def ingest_urls(
             urls_processed=result.processed_urls,
             errors=result.errors,
         )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+
+@router.post("/ingest/github", response_model=GithubIngestionResponse)
+def ingest_github_repo(
+    request: GithubIngestionRequest,
+    service: GithubIngestionService = Depends(get_github_ingestion_service),
+):
+    try:
+        result = service.run_from_github_repo(request.repo_url)
+
+        return GithubIngestionResponse(
+            status="Success! GitHub repository indexed.",
+            nodes_processed=result.nodes_processed,
+            processed_files=result.processed_files,
+            errors=result.errors,
+        )
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
